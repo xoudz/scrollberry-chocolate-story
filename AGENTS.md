@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the bespoke gifting showcase and enquiry in a dedicated browser-only feature component, with enquiry formatting in a pure shared module, so presentation and contact dispatch remain independently testable.
+- Never dispatch a business WhatsApp message without a verified destination number; provide copyable enquiry text and the existing Instagram contact until one is configured.

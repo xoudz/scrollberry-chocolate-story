@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { GiftingExperience } from "@/components/gifting-experience";
+import { Button } from "@/components/ui/button";
 import hero from "@/assets/hero.jpg.asset.json";
 import stack from "@/assets/stack.jpg.asset.json";
 import row from "@/assets/row.jpg.asset.json";
@@ -14,17 +16,15 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Occasion Chocolate — Saudi-Swiss Luxury Chocolatier" },
-      { name: "description", content: "A Saudi-Swiss luxury chocolate brand since 2017. Over 800 flavours and fillings, delivered across the Gulf." },
+      { name: "description", content: "Discover Occasion Chocolate: Saudi-Swiss chocolates, bespoke wedding gifts, corporate hospitality and seasonal gifting, delivered across the Gulf." },
       { property: "og:title", content: "Occasion Chocolate — Luxury Chocolatier" },
-      { property: "og:description", content: "Saudi-Swiss chocolate since 2017. 800+ flavours, delivered across the Gulf." },
+      { property: "og:description", content: "Saudi-Swiss chocolate since 2017. Explore bespoke wedding, corporate and seasonal gifting with Occasion Chocolate." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
-
-const WHATSAPP = "https://wa.me/";
 
 function useScrollY() {
   const [y, setY] = useState(0);
@@ -36,7 +36,7 @@ function useScrollY() {
     };
     on();
     window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("scroll", on); };
   }, []);
   return y;
 }
@@ -109,20 +109,19 @@ function Index() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
           <a href="#top" className="font-display text-lg tracking-[0.3em] text-primary">OCCASION</a>
-          <nav className="hidden gap-8 text-xs uppercase tracking-[0.25em] text-muted-foreground md:flex">
+          <nav className="hidden gap-6 text-xs uppercase tracking-[0.25em] text-muted-foreground lg:flex">
             <a href="#story" className="hover:text-primary">Story</a>
             <a href="#collection" className="hover:text-primary">Collection</a>
+            <a href="#occasions" className="hover:text-primary">Gifting</a>
             <a href="#fillings" className="hover:text-primary">Fillings</a>
             <a href="#visit" className="hover:text-primary">Visit</a>
           </nav>
-          <a href={WHATSAPP} target="_blank" rel="noreferrer" className="border border-primary px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground">
-            Book a tasting
-          </a>
+          <Button asChild variant="outline" className="rounded-none border-primary bg-transparent px-3 text-[10px] uppercase text-primary hover:bg-primary hover:text-primary-foreground"><a href="#concierge">Bespoke enquiry</a></Button>
         </div>
       </header>
 
       {/* Hero */}
-      <section id="top" className="relative h-[100svh] overflow-hidden">
+      <section id="top" className="relative h-[92svh] overflow-hidden">
         <img
           src={hero.url}
           alt="Stacked Occasion milk chocolates"
@@ -135,7 +134,7 @@ function Index() {
           style={{ transform: `translateY(${y * -0.2}px)`, opacity: Math.max(0, 1 - y / 500) }}
         >
           <p className="mb-6 text-[10px] uppercase tracking-[0.5em] text-primary">Luxury Chocolatier · Est. 2017</p>
-          <h1 className="font-display text-5xl leading-[0.95] text-gold-gradient sm:text-7xl md:text-9xl">
+          <h1 className="font-display text-4xl leading-[0.95] text-gold-gradient sm:text-7xl md:text-8xl lg:text-9xl">
             OCCASION<br />CHOCOLATE
           </h1>
           <p lang="ar" dir="rtl" className="mt-8 text-lg text-foreground/80">براند سعودي سويسري</p>
@@ -227,6 +226,8 @@ function Index() {
         </div>
       </section>
 
+      <GiftingExperience />
+
       {/* Horizontal parallax gallery */}
       <section className="overflow-hidden py-24">
         <div className="flex gap-6" style={{ transform: `translateX(${-(y * 0.25) % 2000 + 200}px)` }}>
@@ -277,9 +278,7 @@ function Index() {
           <p className="mt-6 font-serif text-2xl">12 B Street, Ash Shati Ash Sharqi<br />Dammam, Saudi Arabia</p>
           <p className="mt-6 text-sm text-muted-foreground">Office visits and tastings are by appointment only. Enquiries via WhatsApp.</p>
           <p lang="ar" dir="rtl" className="mt-2 text-sm text-muted-foreground">لحضور المكتب والتذوق يلزم حجز موعد مسبق</p>
-          <a href={WHATSAPP} target="_blank" rel="noreferrer" className="mt-10 inline-block bg-primary px-8 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground transition-transform hover:-translate-y-1">
-            Book on WhatsApp
-          </a>
+          <Button asChild className="mt-10 h-auto rounded-none px-8 py-4 text-xs uppercase"><a href="#concierge">Enquire about a tasting</a></Button>
         </div>
         <div className="reveal aspect-square overflow-hidden">
           <iframe

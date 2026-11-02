@@ -125,3 +125,15 @@
 @keyframes marquee { to { transform: translateX(-50%); } }
 .animate-marquee { animation: marquee 40s linear infinite; }
 .frame-ornate { border: 1px solid var(--primary); outline: 1px solid var(--primary); outline-offset: 10px; }
+
+.gifting-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: .2em; }
+.gifting-radio { accent-color: var(--primary); }
+.gifting-photo { animation: gifting-fade .6s ease-out; }
+@keyframes gifting-fade { from { opacity: .5; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+section[id] { scroll-margin-top: 6rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+  #top img, #top > div, #story img, section > .flex[style], section > img[aria-hidden] { transform: none !important; }
+}
