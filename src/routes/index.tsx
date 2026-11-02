@@ -161,7 +161,7 @@ function Index() {
       <section id="story" ref={storyRef} className="relative h-[250vh]">
         <div className="sticky top-0 flex h-screen items-center overflow-hidden">
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 md:grid-cols-2">
-            <div className="relative aspect-[4/5] overflow-hidden">
+            <div className="relative aspect-[4/3] max-h-[45vh] w-full overflow-hidden md:aspect-[4/5] md:max-h-none">
               <img
                 src={stack.url}
                 alt="Stack of Occasion branded chocolates"
