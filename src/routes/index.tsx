@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useScrollEffects } from "@/hooks/use-scroll-effects";
 import { GiftingExperience } from "@/components/gifting-experience";
 import { Button } from "@/components/ui/button";
 import hero from "@/assets/hero.jpg.asset.json";
@@ -26,55 +26,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function useScrollY() {
-  const [y, setY] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    const on = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setY(window.scrollY));
-    };
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("scroll", on); };
-  }, []);
-  return y;
-}
-
-function useReveal() {
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (es) => es.forEach((e) => e.isIntersecting && e.target.classList.add("in")),
-      { threshold: 0.15 },
-    );
-    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-}
-
-/** progress 0→1 of an element passing through the viewport */
-function useProgress<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [p, setP] = useState(0);
-  useEffect(() => {
-    const on = () => {
-      const el = ref.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const total = r.height - window.innerHeight;
-      setP(Math.min(1, Math.max(0, -r.top / (total || 1))));
-    };
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-    };
-  }, []);
-  return [ref, p] as const;
-}
-
 const values = [
   { en: "Authenticity", ar: "الأصالة", text: "Rooted in the traditions of chocolate making — classic craftsmanship and original methods, with a taste, design and story all our own." },
   { en: "Quality", ar: "الجودة", text: "World-class standards, carefully selected ingredients from raw cacao to nuts and fruit, and precision at every step of production." },
@@ -97,16 +48,13 @@ const fillings = [
 ];
 
 function Index() {
-  const y = useScrollY();
-  useReveal();
-  const [storyRef, sp] = useProgress<HTMLElement>();
+  useScrollEffects();
 
   return (
     <main className="bg-background text-foreground">
       {/* Nav */}
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${y > 60 ? "bg-background/85 py-3 backdrop-blur-md" : "py-6"}`}
-      >
+      <div data-page-progress aria-hidden="true" className="page-scroll-progress" />
+      <header className="scroll-nav fixed inset-x-0 top-0 z-50 py-6 transition-all duration-500">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
           <a href="#top" className="font-display text-lg tracking-[0.3em] text-primary">OCCASION</a>
           <nav className="hidden gap-6 text-xs uppercase tracking-[0.25em] text-muted-foreground lg:flex">
@@ -125,13 +73,11 @@ function Index() {
         <img
           src={hero.url}
           alt="Stacked Occasion milk chocolates"
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ transform: `translateY(${y * 0.35}px) scale(${1.1 + y * 0.0003})` }}
+           className="hero-scroll-photo absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
         <div
-          className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center"
-          style={{ transform: `translateY(${y * -0.2}px)`, opacity: Math.max(0, 1 - y / 500) }}
+          className="hero-scroll-title relative z-10 flex h-full flex-col items-center justify-center px-6 text-center"
         >
           <p className="mb-6 text-[10px] uppercase tracking-[0.5em] text-primary">Luxury Chocolatier · Est. 2017</p>
           <h1 className="font-display text-4xl leading-[0.95] text-gold-gradient sm:text-7xl md:text-8xl lg:text-9xl">
@@ -157,27 +103,26 @@ function Index() {
       </div>
 
       {/* Story with pinned image */}
-      <section id="story" ref={storyRef} className="relative h-[250vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+      <section id="story" className="scroll-story relative h-[200svh]">
+        <div className="sticky top-0 flex h-svh items-center overflow-hidden">
           <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 md:grid-cols-2">
             <div className="relative aspect-[4/3] max-h-[45vh] w-full overflow-hidden md:aspect-[4/5] md:max-h-none">
               <img
                 src={stack.url}
                 alt="Stack of Occasion branded chocolates"
-                className="h-full w-full object-cover"
-                style={{ transform: `scale(${1.3 - sp * 0.3})`, clipPath: `inset(${(1 - Math.min(1, sp * 2)) * 30}% round 2px)` }}
+                className="story-scroll-photo h-full w-full object-cover"
               />
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-[0.5em] text-primary">Our Story</p>
               <h2 className="mt-6 font-serif text-4xl leading-tight md:text-6xl">
                 {"A Saudi-Swiss brand, born in the Kingdom in 2017.".split(" ").map((w, i, a) => (
-                  <span key={i} className="transition-opacity duration-300" style={{ opacity: sp * a.length * 1.4 > i ? 1 : 0.15 }}>
+                  <span key={i} className="story-word transition-opacity duration-200" style={{ opacity: `clamp(0.25, calc(var(--story-progress, 0) * ${a.length * 2} - ${i}), 1)` }}>
                     {w}{" "}
                   </span>
                 ))}
               </h2>
-              <p lang="ar" dir="rtl" className="mt-8 text-xl text-muted-foreground" style={{ opacity: sp > 0.6 ? 1 : 0, transition: "opacity .8s" }}>
+              <p lang="ar" dir="rtl" className="story-translation mt-8 text-xl text-muted-foreground">
                 براند سعودي سويسري، تأسس منذ عام ٢٠١٧ بالمملكة العربية السعودية
               </p>
             </div>
@@ -214,7 +159,7 @@ function Index() {
             <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4">
               {products.map((p, i) => (
                 <div key={p.en} className="reveal group" style={{ transitionDelay: `${i * 120}ms` }}>
-                  <div className="aspect-square overflow-hidden bg-background">
+                  <div data-scroll-photo className="scroll-photo-window aspect-square overflow-hidden bg-background">
                     <img src={p.img} alt={p.en} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   </div>
                   <p lang="ar" className="mt-4 text-xl">{p.ar}</p>
@@ -228,12 +173,21 @@ function Index() {
 
       <GiftingExperience />
 
-      {/* Horizontal parallax gallery */}
-      <section className="overflow-hidden py-24">
-        <div className="flex gap-6" style={{ transform: `translateX(${-(y * 0.25) % 2000 + 200}px)` }}>
-          {[row, squares, gold, praline, blanca, truffle, stack].map((a, i) => (
-            <img key={i} src={a.url} alt="Occasion chocolates" loading="lazy" className="h-64 w-auto shrink-0 object-cover md:h-96" />
-          ))}
+      {/* Pinned, scroll-driven chocolate gallery */}
+      <section data-scroll-gallery className="scroll-gallery">
+        <div className="gallery-stage">
+          <div className="mx-auto mb-10 w-full max-w-7xl px-6">
+            <p className="reveal text-[10px] uppercase text-primary">A closer look</p>
+            <h2 className="reveal mt-4 font-serif text-4xl md:text-6xl">Every piece, a little masterpiece.</h2>
+          </div>
+          <div className="gallery-viewport">
+            <div data-gallery-track className="gallery-track flex w-max gap-6 px-6">
+              {[row, squares, gold, praline, blanca, truffle, stack].map((a, i) => (
+                <img key={i} src={a.url} alt="Occasion chocolates" loading="lazy" className="gallery-photo shrink-0 object-cover" />
+              ))}
+            </div>
+          </div>
+          <div aria-hidden="true" className="gallery-progress mx-6 mt-10 h-px bg-border"><div className="h-full origin-left bg-primary" /></div>
         </div>
       </section>
 
@@ -259,8 +213,8 @@ function Index() {
       </section>
 
       {/* Delivery */}
-      <section className="relative overflow-hidden py-40">
-        <img src={gold.url} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover opacity-30" style={{ transform: `translateY(${(y - 5000) * 0.1}px) scale(1.2)` }} />
+      <section data-scroll-photo className="scroll-photo-window relative overflow-hidden py-40">
+        <img src={gold.url} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover opacity-30" />
         <div className="reveal relative mx-auto max-w-3xl px-6 text-center">
           <h2 className="font-serif text-4xl italic md:text-6xl">Delivered across the Gulf</h2>
           <p className="mt-6 text-muted-foreground">

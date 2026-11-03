@@ -11,3 +11,4 @@
 
 - Keep the bespoke gifting showcase and enquiry in a dedicated browser-only feature component, with enquiry formatting in a pure shared module, so presentation and contact dispatch remain independently testable.
 - Never dispatch a business WhatsApp message without a verified destination number; provide copyable enquiry text and the existing Instagram contact until one is configured.
+- Coordinate scroll effects through one browser-only animation-frame hook and element-local CSS variables, keeping React renders independent of scrolling and providing reduced-motion and touch-gallery fallbacks.
