@@ -40,7 +40,7 @@ export function GiftCustomizer({ design, onChange }: Props) {
                 {pieces.map((f, i) => <span key={i} className={`tray-piece ${f ? "piece-" + signatureFillings.indexOf(f as never) : ""}`} />)}
               </div>
               {design.touches.includes("Calligraphed silk ribbon") && <div className="tray-ribbon" />}
-              {design.touches.includes("Gold foil seal") && <div className="tray-seal font-display">{design.monogram.trim().slice(0, 3) || "O"}</div>}
+              {design.touches.includes("Gold foil seal") && <div className="tray-seal font-display">{design.monogram.replace(/\s/g, "").slice(0, 3) || "O"}</div>}
             </div>
             <p className="mt-4 text-xs text-muted-foreground">Illustrative preview · Final styling tailored with our team</p>
           </div>
