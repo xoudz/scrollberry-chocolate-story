@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Copy, Gift, Gem, Truck, Ribbon, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GiftCustomizer } from "@/components/gift-customizer";
+import type { GiftDesign } from "@/lib/gifting";
 import { businessWhatsAppNumber, eventTypes, formatGiftingEnquiry, giftingWhatsAppUrl, guestVolumes, presentations } from "@/lib/gifting";
 import wedding from "@/assets/wedding-gifting.jpg";
 import corporate from "@/assets/corporate-gifting.jpg";
@@ -19,12 +21,13 @@ export function GiftingExperience() {
   const [volume, setVolume] = useState("");
   const [presentation, setPresentation] = useState("");
   const [notes, setNotes] = useState("");
+  const [design, setDesign] = useState<GiftDesign>({ vessel: "Royal Velvet Tray", finish: "Deep Burgundy", fillings: [], monogram: "", touches: [] });
   const [copyStatus, setCopyStatus] = useState("");
   const conciergeRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const occasion = occasions[active];
   if (!occasion) return null;
-  const enquiry = { event, volume, presentation, notes };
+  const enquiry = { event, volume, presentation, notes, design };
   const message = formatGiftingEnquiry(enquiry);
   const whatsapp = giftingWhatsAppUrl(enquiry, businessWhatsAppNumber);
   const options = step === 0 ? eventTypes : step === 1 ? guestVolumes : presentations;
@@ -74,6 +77,8 @@ export function GiftingExperience() {
       </div>
     </section>
 
+    <GiftCustomizer design={design} onChange={d => { setDesign(d); setCopyStatus(""); }} />
+
     <section id="concierge" ref={conciergeRef} className="scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 md:grid-cols-[.8fr_1.2fr] md:gap-20">
         <div className="reveal"><p className="gifting-eyebrow text-primary">Bespoke Gifting Concierge</p><h2 className="mt-5 font-serif text-4xl md:text-6xl">An occasion.<br /><span className="italic text-primary">Your signature.</span></h2><p lang="ar" dir="rtl" className="mt-6 text-xl text-primary md:text-left">هديتك، بتفاصيلك</p><p className="mt-6 max-w-sm text-sm leading-7 text-muted-foreground">Every celebration is personal. Tell us what you have in mind, and let’s create something memorable.</p><p className="mt-8 border-t border-border pt-6 text-xs leading-6 text-muted-foreground">By consultation · Personalization and availability confirmed with our team</p></div>
@@ -81,7 +86,7 @@ export function GiftingExperience() {
           <ol aria-label="Enquiry progress" className="grid grid-cols-4 gap-2">{stepNames.map((name, i) => <li key={name} aria-current={step === i ? "step" : undefined} className={`border-t-2 pt-3 ${step >= i ? "border-primary text-primary" : "border-border text-muted-foreground"}`}><span className="block text-xs">0{i + 1}</span><span className="mt-2 block text-[10px] leading-4 uppercase">{name}</span></li>)}</ol>
           <div className="mt-10 min-h-[340px]">
             <p className="text-xs text-muted-foreground">Step {step + 1} of 4</p><h3 ref={headingRef} tabIndex={-1} className="mt-3 font-serif text-3xl outline-none">{["What are you celebrating?", "How many guests or gifts?", "How would you like it presented?", "Your bespoke enquiry"][step]}</h3>
-            {step < 3 ? <fieldset className="mt-8"><legend className="sr-only">{stepNames[step]}</legend><div className="grid gap-3">{options.map(option => <label key={option} className={`flex min-h-14 cursor-pointer items-center justify-between gap-3 border px-4 py-4 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring ${selected === option ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary"}`}><span className="flex items-center gap-3"><input type="radio" name={`gifting-step-${step}`} value={option} checked={selected === option} onChange={() => choose(option)} className="gifting-radio size-4 shrink-0" />{option}</span>{selected === option && <Check className="size-4 shrink-0" aria-hidden />}</label>)}</div></fieldset> : <div className="mt-6"><dl className="divide-y divide-border text-sm">{[["Occasion", event], ["Guest count", volume], ["Presentation", presentation]].map(([label, value]) => <div key={label} className="flex flex-wrap justify-between gap-2 py-3"><dt className="text-muted-foreground">{label}</dt><dd>{value}</dd></div>)}</dl><label htmlFor="gifting-notes" className="mt-5 block text-xs text-muted-foreground">Date, destination & personal touches (optional)</label><textarea id="gifting-notes" value={notes} onChange={e => { setNotes(e.target.value); setCopyStatus(""); }} maxLength={1500} rows={3} placeholder="Tell us about your occasion…" className="mt-2 w-full resize-y border border-input bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" /></div>}
+            {step < 3 ? <fieldset className="mt-8"><legend className="sr-only">{stepNames[step]}</legend><div className="grid gap-3">{options.map(option => <label key={option} className={`flex min-h-14 cursor-pointer items-center justify-between gap-3 border px-4 py-4 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring ${selected === option ? "border-primary bg-primary/10 text-primary" : "border-border text-foreground hover:border-primary"}`}><span className="flex items-center gap-3"><input type="radio" name={`gifting-step-${step}`} value={option} checked={selected === option} onChange={() => choose(option)} className="gifting-radio size-4 shrink-0" />{option}</span>{selected === option && <Check className="size-4 shrink-0" aria-hidden />}</label>)}</div></fieldset> : <div className="mt-6"><dl className="divide-y divide-border text-sm">{[["Occasion", event], ["Guest count", volume], ["Presentation", presentation], ["Design", `${design.vessel} · ${design.finish}${design.fillings.length ? " · " + design.fillings.join(", ") : ""}`]].map(([label, value]) => <div key={label} className="flex flex-wrap justify-between gap-2 py-3"><dt className="text-muted-foreground">{label}</dt><dd>{value}</dd></div>)}</dl><label htmlFor="gifting-notes" className="mt-5 block text-xs text-muted-foreground">Date, destination & personal touches (optional)</label><textarea id="gifting-notes" value={notes} onChange={e => { setNotes(e.target.value); setCopyStatus(""); }} maxLength={1500} rows={3} placeholder="Tell us about your occasion…" className="mt-2 w-full resize-y border border-input bg-background p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring" /></div>}
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
             {step > 0 ? <Button variant="ghost" onClick={() => move(step - 1)} className="px-0 text-muted-foreground"><ArrowLeft /> Back</Button> : <span />}
